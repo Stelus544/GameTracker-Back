@@ -1,31 +1,40 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const dotenv = require('dotenv');
 const cors = require('cors');
-
-dotenv.config();
+require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.DATABASE, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+// Conexión a MongoDB Atlas
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://morenoorejuela25_db_user:contraseñasegura@cluster0.tqbqonu.mongodb.net/?appName=Cluster0';
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => console.log('Conectado a la base de datos MongoDB'))
-.catch(err => console.error('Error de conexión:', err));
+.then(() => console.log('✅ Conectado a MongoDB Atlas'))
+.catch((err) => console.error('❌ Error conectando a MongoDB:', err));
 
-const gameRoutes = require('./routes/games');
-const reviewRoutes = require('./routes/reviews');
+// Importar rutas
+const juegosRoutes = require('./routes/games');
+const resenasRoutes = require('./routes/reviews');
 
-app.use('/api/games', gameRoutes);
-app.use('/api/reviews', reviewRoutes);
+// Usar rutas
+app.use('/api/juegos', juegosRoutes);
+app.use('/api/resenas', resenasRoutes);
 
-app.get('/', (req, res) => { res.send('Backend funcionando correctamente'); });
-
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+// Ruta de prueba
+app.get('/', (req, res) => {
+  res.json({ mensaje: '🎮 GameTracker API funcionando correctamente' });
 });
+
+// Puerto
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor corriendo en puerto ${PORT}`);
+});
+
+module.exports = app;
